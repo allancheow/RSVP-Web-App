@@ -5,6 +5,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
     const mainDiv = document.querySelector(`.main`);
     const ul = document.getElementById(`invitedList`);
+    let lis = ul.children;
 
     const div = document.createElement(`div`);
     const filterLabel = document.createElement(`label`);
@@ -15,13 +16,16 @@ document.addEventListener(`DOMContentLoaded`, () => {
     div.appendChild(filterLabel);
     div.appendChild(filterCheckBox);
     mainDiv.insertBefore(div, ul);
+
     filterCheckBox.addEventListener(`change`, (e) => {
         const isChecked = e.target.checked;
-        const lis = ul.children;
+        //const lis = ul.children;
         if (isChecked) {
             for ( let i = 0; i < lis.length; i++ ) {
                 let li = lis[i];
+                let confirmedText = li.firstElementChild.nextElementSibling;
                 if (li.className === `responded` ) {
+                    confirmedText.style.display = 'none';
                     li.style.display = ``;
                 } else {
                     li.style.display = `none`;
@@ -30,7 +34,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
         } else {
             for ( let i = 0; i < lis.length; i++ ) {
                 let li = lis[i];
+                let confirmedText = li.firstElementChild.nextElementSibling;
                 li.style.display = ``;
+                confirmedText.style.display = '';
             }
         }
     });
@@ -73,13 +79,33 @@ document.addEventListener(`DOMContentLoaded`, () => {
     form.addEventListener(`submit`, (e) => {
         // Cancels browsers default submit behavior
         e.preventDefault();
-        // console.log(input.value);
         const text = input.value;
-        input.value = ``;
-        const li = createLI(text);
-        ul.appendChild(li);
-        console.log(`text: ${text}`);
-        addAttendees(text);
+        let dupeName = false;
+        
+        function alertNotification(color,message) {            
+            input.style.backgroundColor = color;
+            input.placeholder = message;
+        }
+
+        for ( let i = 0; i < lis.length; i++ ) {
+            let lisName = lis[i].firstElementChild.textContent;
+            if  (text.toLowerCase() === lisName.toLowerCase() ) {
+                dupeName = true;
+            }
+        }
+        
+        if ( text === '') {
+            alertNotification(`#ff9999`,`Error: Blank entry, try again.`);
+        } else if (dupeName) {
+            alertNotification(`#FFA500`,`This name is already on the list`);                
+            input.value = ``;
+        } else {
+            input.style.backgroundColor = `#fff`;
+            input.value = ``;
+            const li = createLI(text);
+            ul.appendChild(li);
+            addInvitees(text);
+        }
     });
 
     ul.addEventListener(`change`, (e) => {
@@ -99,11 +125,12 @@ document.addEventListener(`DOMContentLoaded`, () => {
         const checked = checkbox.checked;
         const listItem = checkbox.parentNode.parentNode;
         const label = checkbox.parentNode;
-        console.log(label.textContent);
         if (checked) {
             listItem.className = `responded`;
+            label.firstChild.textContent = `Confirmed`;
         } else {
             listItem.className = ``;
+            label.firstChild.textContent = `Confirm`;
         }
     });
 
@@ -115,9 +142,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
             const action = button.textContent;
             const nameActions = {
                 remove: () => {          
-                    const liText = li.firstChild.textContent;
+                    const liText = li.firstElementChild.textContent;
                     ul.removeChild(li);
-                    removeAttendees(liText);
+                    removeInvitees(liText);
                 },
                 edit: () => {
                     const span = li.firstElementChild;
@@ -146,37 +173,34 @@ document.addEventListener(`DOMContentLoaded`, () => {
         return ('localStorage' in window) && (window['localStorage'] !== null);
     }
     
-    function getRecentAttendees() {
-        const attendeeList = localStorage.getItem('attendees');
-        if (attendeeList) {
-          return JSON.parse(attendeeList);
+    function getRecentInvitees() {
+        const inviteeList = localStorage.getItem('invitees');
+        if (inviteeList) {
+          return JSON.parse(inviteeList);
         } else {
           return [];
         }
     }
 
-    function addAttendees(string) {
-        console.log(`string: ${string}`);
-        const attendees = getRecentAttendees();
-    
-        attendees.push(string);
-        localStorage.setItem('attendees', JSON.stringify(attendees));
+    function addInvitees(string) {
+        const invitees = getRecentInvitees();    
+        invitees.push(string);
+        localStorage.setItem('invitees', JSON.stringify(invitees));
     }
 
-    function removeAttendees(string) {
-        const attendees = getRecentAttendees();
-        const toBeRemovedId = attendees.indexOf(string);
-    
-        attendees.splice(toBeRemovedId,1);
-        localStorage.setItem('attendees', JSON.stringify(attendees));
+    function removeInvitees(string) {
+        const invitees = getRecentInvitees();
+        const removedInvitee = invitees.indexOf(string);    
+        invitees.splice(removedInvitee,1);
+        localStorage.setItem('invitees', JSON.stringify(invitees));
     }
     
     if( supportsLocalStorage ) {
         // Initialize display list
-        const recentAttendees = getRecentAttendees();
+        const recentInvitees = getRecentInvitees();
         input.value = ``;
-        recentAttendees.forEach(function(recentAttendees) {
-            const newLi = createLI(recentAttendees);
+        recentInvitees.forEach(function(recentInvitees) {
+            const newLi = createLI(recentInvitees);
             ul.appendChild(newLi);
         });
     }
