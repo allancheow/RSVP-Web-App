@@ -78,6 +78,8 @@ document.addEventListener(`DOMContentLoaded`, () => {
         input.value = ``;
         const li = createLI(text);
         ul.appendChild(li);
+        console.log(`text: ${text}`);
+        addAttendees(text);
     });
 
     ul.addEventListener(`change`, (e) => {
@@ -112,8 +114,10 @@ document.addEventListener(`DOMContentLoaded`, () => {
             const ul = li.parentNode;
             const action = button.textContent;
             const nameActions = {
-                remove: () => {                
+                remove: () => {          
+                    const liText = li.firstChild.textContent;
                     ul.removeChild(li);
+                    removeAttendees(liText);
                 },
                 edit: () => {
                     const span = li.firstElementChild;
@@ -137,4 +141,43 @@ document.addEventListener(`DOMContentLoaded`, () => {
             nameActions[action]();
         }
     });
+
+    function supportsLocalStorage() {
+        return ('localStorage' in window) && (window['localStorage'] !== null);
+    }
+    
+    function getRecentAttendees() {
+        const attendeeList = localStorage.getItem('attendees');
+        if (attendeeList) {
+          return JSON.parse(attendeeList);
+        } else {
+          return [];
+        }
+    }
+
+    function addAttendees(string) {
+        console.log(`string: ${string}`);
+        const attendees = getRecentAttendees();
+    
+        attendees.push(string);
+        localStorage.setItem('attendees', JSON.stringify(attendees));
+    }
+
+    function removeAttendees(string) {
+        const attendees = getRecentAttendees();
+        const toBeRemovedId = attendees.indexOf(string);
+    
+        attendees.splice(toBeRemovedId,1);
+        localStorage.setItem('attendees', JSON.stringify(attendees));
+    }
+    
+    if( supportsLocalStorage ) {
+        // Initialize display list
+        const recentAttendees = getRecentAttendees();
+        input.value = ``;
+        recentAttendees.forEach(function(recentAttendees) {
+            const newLi = createLI(recentAttendees);
+            ul.appendChild(newLi);
+        });
+    }
 });
