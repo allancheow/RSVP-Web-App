@@ -44,7 +44,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
     /**
      * Retrieves input from user to create 
-     * list of attendees. Craetes <li> with
+     * list of attendees. Creates <li> with
      * guest name, checkbox and remove button
      *
      * @param {text} input value from user
@@ -89,9 +89,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
         for ( let i = 0; i < lis.length; i++ ) {
             let lisName = lis[i].firstElementChild.textContent;
-            if  (text.toLowerCase() === lisName.toLowerCase() ) {
-                dupeName = true;
-            }
+            text.toLowerCase() === lisName.toLowerCase() ? dupeName = true : null;
         }
         
         if ( text === '') {
