@@ -1,15 +1,13 @@
 //console.log(`I'm connected`);
 document.addEventListener(`DOMContentLoaded`, () => {
-    const form = document.getElementById(`registrar`);
-    const input = form.querySelector(`input`);
-
-    const mainDiv = document.querySelector(`.main`);
-    const ul = document.getElementById(`invitedList`);
+    const   form = document.getElementById(`registrar`),
+            input = form.querySelector(`input`),
+            mainDiv = document.querySelector(`.main`),
+            ul = document.getElementById(`invitedList`),
+            div = document.createElement(`div`),
+            filterLabel = document.createElement(`label`),
+            filterCheckBox = document.createElement(`input`);
     let lis = ul.children;
-
-    const div = document.createElement(`div`);
-    const filterLabel = document.createElement(`label`);
-    const filterCheckBox = document.createElement(`input`);
 
     filterLabel.textContent = `Hide those who haven't responded`;
     filterCheckBox.type = `checkbox`;
@@ -118,26 +116,22 @@ document.addEventListener(`DOMContentLoaded`, () => {
             label.appendChild(element);
             return element;
         }
+
         // console.log(e.target.checked);
-        const checkbox = e.target;
-        const checked = checkbox.checked;
-        const listItem = checkbox.parentNode.parentNode;
-        const label = checkbox.parentNode;
-        if (checked) {
-            listItem.className = `responded`;
-            label.firstChild.textContent = `Confirmed`;
-        } else {
-            listItem.className = ``;
-            label.firstChild.textContent = `Confirm`;
-        }
+        const   checkbox = e.target,
+                checked = checkbox.checked,
+                listItem = checkbox.parentNode.parentNode,
+                label = checkbox.parentNode;
+        checked ? (listItem.className = `responded`, label.firstChild.textContent = `Confirmed`) 
+            : (listItem.className = ``, label.firstChild.textContent = `Confirm`);
     });
 
     ul.addEventListener(`click`, (e) => {
         if ( e.target.tagName === `BUTTON` ) {
-            const button = e.target;
-            const li = button.parentNode;
-            const ul = li.parentNode;
-            const action = button.textContent;
+            const   button = e.target,
+                    li = button.parentNode,
+                    ul = li.parentNode,
+                    action = button.textContent;
             const nameActions = {
                 remove: () => {          
                     const liText = li.firstElementChild.textContent;
@@ -167,26 +161,20 @@ document.addEventListener(`DOMContentLoaded`, () => {
         }
     });
 
-    function supportsLocalStorage() {
-        return ('localStorage' in window) && (window['localStorage'] !== null);
-    }
+    const supportsLocalStorage = () => ('localStorage' in window) && (window['localStorage'] !== null);
     
-    function getRecentInvitees() {
+    const getRecentInvitees = () => {
         const inviteeList = localStorage.getItem('invitees');
-        if (inviteeList) {
-          return JSON.parse(inviteeList);
-        } else {
-          return [];
-        }
+        return inviteeList ? JSON.parse(inviteeList) :  [];
     }
 
-    function addInvitees(string) {
+    const addInvitees = (string) => {
         const invitees = getRecentInvitees();    
         invitees.push(string);
         localStorage.setItem('invitees', JSON.stringify(invitees));
     }
 
-    function removeInvitees(string) {
+    const removeInvitees = (string) => {
         const invitees = getRecentInvitees();
         const removedInvitee = invitees.indexOf(string);    
         invitees.splice(removedInvitee,1);
